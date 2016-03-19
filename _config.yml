@@ -1,22 +1,89 @@
-# Welcome to Jekyll!
-#
-# This config file is meant for settings that affect your whole blog, values
-# which you are expected to set up once and rarely need to edit after that.
-# For technical reasons, this file is *NOT* reloaded automatically when you use
-# 'jekyll serve'. If you change this file, please restart the server process.
+# User Settings | Edit there as per required
 
-# Site settings
-title: Pasta from Fat Joey
+title: Fat Joey's Pasta
+url: "http://shengshuyang.github.io/"
+baseurl: ""
+
+# This will show up at the top of index page
+site_heading: >
+    Fat Joey's blog
+
 email: shuyangs@usc.edu
-description: > # this means to ignore newlines until "baseurl:"
+author: Shuyang Sheng
+# This description will show up in google search results
+# (for index page) etc.
+description: >
+    accent is, as Trump would put it, the best
+
+# This will what will show against &copy; in the footer
+copyright: accent
+# Toggle your short bio, which will displayed on your index page
+# Just toggle it and run jekyll again to see
+intro: true         # Tip: Remove the span from site_heading if intro is set to true
+# This will be displayed in your intro
+short_bio: >
   This is where I would ramble on about the small technical things I found useful. 
   I started this after struggling with feeding data into LMDB format and then into
-  Caffe. Why so many inconclusive tutorials while two simple example code snippets 
-  would suffice?
-baseurl: "" # the subpath of your site, e.g. /blog
-url: "http://shengshuyang.github.io" # the base hostname & protocol for your site
-twitter_username: faatJoey
-github_username:  shengshuyang
+  Caffe.
 
-# Build settings
+permalink: /:title.html
+
+# Comments are powered by disqus
+comments: true
+
+# keep about_stub roughly 12 words long for best results
+# This will show up at the bottom of each post
+# Note that about_footer should be true if you want
+# to see author information at the bottom of each post
+about_stub: >
+    Keep this sentence less than 13 words or it won't look good.
+
+about_footer: true
+
+twitter_username: faatJoey
+github_username: shengshuyang
+favicon: true
+favicon_location: "images/favicon.ico"
+
+profile_picture: images/temp.png
+paginate: 5
+paginate_path: "/page/:num"
+tracking_id: UA-69243698-7 # GA Tracking ID
+
+# Social Stuff | open graph and twitter cards
+og_image: "images/accent.png" # This will show in facebook thumbnails
+twitter_image: "http://ankitsultana.me/images/accent.png?1234" # This will show in twitter cards
+
+####################################
+####################################
+####################################
+### Build Settings | Don't Touch ###
+####################################
+####################################
+####################################
+
 markdown: kramdown
+
+gems:
+    - jekyll-paginate
+
+sass:
+    style: compressed
+    sass_dir: _sass
+
+# Scopes
+defaults:
+    -
+        scope:
+            path:   ""
+            type:   "pages"
+        values:
+            layout: "page"
+    -
+        scope:
+            path:   ""
+            type:   "posts"
+        values:
+            layout: "post"
+
+exclude: [vendor] # For travis ci
