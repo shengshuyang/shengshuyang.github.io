@@ -1,25 +1,25 @@
 # User Settings | Edit there as per required
 
-title: Fat Joey's Pasta
+title: Shuyang Sheng's Blog
 url: "http://shengshuyang.github.io/"
 baseurl: ""
 
 # This will show up at the top of index page
 site_heading: >
-    Fat Joey's blog
+    Shuyang Sheng<span class="faded">'s Blog</span>
 
 email: shuyangs@usc.edu
 author: Shuyang Sheng
 # This description will show up in google search results
 # (for index page) etc.
 description: >
-    accent is, as Trump would put it, the best
+    Shuyang Sheng's technical blog.
 
 # This will what will show against &copy; in the footer
 copyright: accent
 # Toggle your short bio, which will displayed on your index page
 # Just toggle it and run jekyll again to see
-intro: true         # Tip: Remove the span from site_heading if intro is set to true
+intro: false         # Tip: Remove the span from site_heading if intro is set to true
 # This will be displayed in your intro
 short_bio: >
   This is where I would ramble on about the small technical things I found useful. 
@@ -36,7 +36,7 @@ comments: true
 # Note that about_footer should be true if you want
 # to see author information at the bottom of each post
 about_stub: >
-    Keep this sentence less than 13 words or it won't look good.
+    PhD student at USC working on computer vision.
 
 about_footer: true
 
