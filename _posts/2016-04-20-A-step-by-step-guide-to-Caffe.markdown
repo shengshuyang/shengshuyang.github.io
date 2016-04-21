@@ -13,7 +13,7 @@ Before we get started, I strongly recommend going through [This Course](http://c
 
 Now let's get started.
 
-0. Get a desktop with a nice GPU!
+- Get a desktop with a nice GPU!
 
 Although most deep learning platforms can be run on CPU, it's in general much slower. My personal experience is around 50-100 times slower, and I timed it once: *160 images per 35 seconds* versus *5120 images in 26 seconds*. 
 
@@ -21,13 +21,13 @@ Up to this point I still think building a PC with a decent GPU is the best optio
 
 I found this great [**blog post**](http://timdettmers.com/2014/08/14/which-gpu-for-deep-learning/) on GPU selections. Take a look if you are wondering which GPU to buy.
 
-1. Install Caffe
+- Install Caffe
 
 The official documentation of Caffe has a pretty detailed instruction on installing Caffe [**here**](http://caffe.berkeleyvision.org/installation.html); they also provided a few platform specific step by step tutorials (e.g. [**here**](http://caffe.berkeleyvision.org/install_apt.html)). Currently Ubuntu is best supported.
 
 Thanks to the life saving *apt-get install* command, I was able to install most of the dependencies effortlessly. The Caffe package itself, however, needs to be compiled locally, some prior knowledge about *make* would help (not recommended to use the cmake script, it caused some issue for me).
 
-2. Data Preparation
+- Data Preparation
 
 Caffe is a high performance computing framework, to get more out of its amazing GPU accelerated training, you certainly don't want to let file I/O slow you down, which is why a database system is normally used. The most common option is to use lmdb.
 
@@ -37,8 +37,8 @@ Caffe has a tool `convert_imageset` to help you build lmdb from a set of images.
 
 You can also check out my recent [**post**](http://shengshuyang.github.io/hook-up-lmdb-with-caffe-in-python.html) on how to write images into lmdb using Python.
 
-Either way, once you are done, you'll get two folders like this:
-
+Either way, once you are done, you'll get two folders like below. The `data.mdb` files will be very large, that's where your images went.
+	
 {% highlight bash %}
 train_lmdb/
   -- data.mdb
@@ -46,11 +46,9 @@ train_lmdb/
 val_lmdb/
   -- data.mdb
   -- lock.mdb
- {% endhighlight %}
+{% endhighlight %}
 
-one for training and one for validation. Under each folder, the `data.mdb` file will be huge, it's where your images actually goes in.
-
-3. Setting up the model and the solver
+- Setting up the model and the solver
 
 Caffe has a very nice abstraction that separates neural network definitions (models) from the optimizers (solvers). A model defines the structure of a neural network, while a solver defines all information about how gradient descent will be conducted.
 
@@ -70,11 +68,11 @@ layer {
   transform_param {
     mirror: false
     crop_size: 227
-    mean_file: "data/train_mean.binaryproto"
+    mean_file: "data/train_mean.binaryproto" # location of the training data mean
   }
   data_param {
-    source: "data/train_lmdb"
-    batch_size: 128
+    source: "data/train_lmdb" # location of the training samples
+    batch_size: 128 # how many samples are grouped into one mini-batch
     backend: LMDB
   }
 }
@@ -92,7 +90,7 @@ layer {
     mean_file: "data/train_mean.binaryproto"
   }
   data_param {
-    source: "data/val_lmdb"
+    source: "data/val_lmdb" # location of the validation samples
     batch_size: 50
     backend: LMDB
   }
@@ -147,7 +145,117 @@ layer {
 
 This is actually a part of the AlexNet, you can find its full definition under `/caffe/models/bvlc_alexnet`.
 
-If you use Python, install `graphviz`, you can use a script `/caffe/python/draw_net.py` to visualize the structure of your network and check if you made any mistake in the specification.
+If you use Python, install `graphviz` (install both the actuall `graphviz` using `apt-get`, and also the python package under the same name), you can use a script `/caffe/python/draw_net.py` to visualize the structure of your network and check if you made any mistake in the specification.
+
+The resulting image will look like this:
 
 ![The BVLC Net]({{ site.url }}/images/bvlc_net.jpg)
 
+Once the neural net is set up and hooked up with the lmdb files, you can write a `solver.prototxt` to specify gradient descent parameters.
+
+{% highlight bash %}
+net: "models/train_val.prototxt" # path to the network definition
+test_iter: 200 # how many mini-batches to test in each validation phase
+test_interval: 500 # how often do we call the test phase
+base_lr: 1e-5 # base learning rate
+lr_policy: "step" # step means to decrease lr after a number of iterations
+gamma: 0.1 # ratio of decrement in each step
+stepsize: 5000 # how often do we step (should be called step_interval)
+display: 20 # how often do we print training loss
+max_iter: 450000 
+momentum: 0.9 
+weight_decay: 0.0005 # regularization!
+snapshot: 2000 # taking snapshot is like saving your progress in a game
+snapshot_prefix: "models/model3_train_0422"
+solver_mode: GPU
+ {% endhighlight %}
+
+- Start training
+
+So we have our model and solver ready, we can start training by calling the `caffe` binary:
+{% highlight bash %}
+caffe train \
+  -gpu 0 \
+  -solver my_model/solver.prototxt
+{% endhighlight %}
+
+note that we only need to specify the solver, because the model is specified in the solver file, and the data is specified in the model file.
+
+We can also resume from a snapshot, which is very common (imaging if you are playing Assasin's Creed and you need to start from the beginning everytime you quit game...):
+
+{% highlight bash %}
+caffe train \
+    -gpu 0 \
+    -solver my_model/solver.prototxt \
+    -snapshot my_model/my_model_iter_6000.solverstate 2>&1 | tee log/my_model.log
+{% endhighlight %}
+
+or to fine tune from a trained network:
+
+{% highlight bash %}
+caffe train \
+    -gpu 0 \
+    -solver my_model/solver.prototxt \
+    -weights my_model/bvlc_reference_caffenet.caffemodel 2>&1 | tee -a log/my_model.log
+{% endhighlight %}
+
+
+- Logging your performance
+
+Once the training starts, Caffe will print training loss and testing accuracies in a frequency specified by you, however, it would be very useful to save those screen outputs to a log file so we can better visualize our progress, and that's why we have those funky things in the code block above:
+
+{% highlight bash %}
+    ... 2>&1 | tee -a log/my_model.log
+{% endhighlight %}
+
+This half line of code uses a command called `tee` to "intercept" the data stream from stdout to the screen, and save it to a file. 
+
+Now the cool things: Caffe has a script (`/caffe/tools/extra/parse_log.py`) to parse log files and return two much better formatted files.
+
+{% highlight bash %}
+# my_model.log.train
+NumIters,Seconds,LearningRate,loss
+6000.0,10.468114,1e-06,0.0476156
+6020.0,17.372427,1e-06,0.0195639
+6040.0,24.237645,1e-06,0.0556274
+6060.0,31.084703,1e-06,0.0244656
+6080.0,37.927866,1e-06,0.0325582
+6100.0,44.778659,1e-06,0.0131274
+6120.0,51.62342,1e-06,0.0607449
+{% endhighlight %}
+
+{% highlight bash %}
+# my_model.log.test
+NumIters,Seconds,LearningRate,accuracy,loss
+6000.0,10.33778,1e-06,0.9944,0.0205859
+6500.0,191.054363,1e-06,0.9948,0.0191656
+7000.0,372.292923,1e-06,0.9951,0.0186095
+7500.0,583.508988,1e-06,0.9947,0.0211263
+8000.0,806.678746,1e-06,0.9947,0.0192824
+8500.0,1027.549856,1e-06,0.9953,0.0183917
+9000.0,1209.650574,1e-06,0.9949,0.0194651
+{% endhighlight %}
+
+And with a little bit trick, you can automate the parsing process and combine it with curve plotting using a script like this: 
+
+{% highlight bash %}
+# visualize_log.sh
+python ~/caffe/tools/extra/parse_log.py my_model.log .
+gnuplot -persist gnuplot_commands
+{% endhighlight %}
+
+where `gnuplot_commands` is a file that stores a set of gnuplot commands.
+
+{% highlight bash %}
+# gnuplot_commands
+set datafile separator ','
+set term x11 0
+plot '../my_model.log.train' using 1:4  with line,\
+     '../my_model.log.test' using 1:5 with line
+set term x11 1
+plot '../my_model.log.test' using 1:4 with line
+{% endhighlight %}
+
+A sample result looks like this:
+
+![Logging the Log Loss]({{ site.url }}/images/loss_log.jpg)
