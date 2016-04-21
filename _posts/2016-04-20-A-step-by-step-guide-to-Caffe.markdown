@@ -259,3 +259,65 @@ plot '../my_model.log.test' using 1:4 with line
 A sample result looks like this:
 
 ![Logging the Log Loss]({{ site.url }}/images/loss_log.png)
+
+You can call the `visualize_log.sh` command at any time during training to check the progress.
+
+There are a lot of things to talk about babysitting the training process, it's out of the scope of this post though. The class notes from Stanford ([**here**](http://cs231n.github.io/neural-networks-3/)) has had it very well explained, take a look if you are interested.
+
+The training process involves a search for multiple hyperparameters (as described in the solver), it's actually quite complicated and requires certain level of experience to get the best training results.
+
+- Deploy your model
+
+Finally, after all the training process, we will like to use it in actual prediction. There are multiple ways of doing so, here I will describe the Pythonic way:
+
+{% highlight bash %}
+import numpy as np
+import matplotlib.pyplot as plt
+import sys
+import caffe
+
+# Set the right path to your model definition file, pretrained model weights,
+# and the image you would like to classify.
+MODEL_FILE = 'models/deploy.prototxt'
+PRETRAINED = 'models/my_model_iter_10000.caffemodel'
+
+# load the model
+caffe.set_mode_gpu()
+caffe.set_device(0)
+net = caffe.Classifier(MODEL_FILE, PRETRAINED,
+                       mean=np.load('data/train_mean.npy').mean(1).mean(1),
+                       channel_swap=(2,1,0),
+                       raw_scale=255,
+                       image_dims=(256, 256))
+print "successfully loaded classifier"
+
+# test on a image
+IMAGE_FILE = 'path/to/image/img.png'
+input_image = caffe.io.load_image(IMAGE_FILE)
+# predict takes any number of images,
+# and formats them for the Caffe net automatically
+pred = net.predict([input_image])
+
+{% endhighlight %}
+
+You'll need a `deploy.prototxt` file to perform testing, which is quite easy to create, simply remove the data layers and add an input layer like this:
+
+{% highlight bash %}
+input: "data"
+input_shape {
+  dim: 10
+  dim: 3
+  dim: 227
+  dim: 227
+}
+{% endhighlight %}
+
+you can find a few examples in `/caffe/model`.
+
+- That's It!
+
+This post describes how I conduct Caffe training, with some details explained here and there, hopefully it can give you a nice kickstart. 
+
+Caffe has a mixture of command line, Python and Matlab interfaces, you can definitely create a different pipeline that works best for you. To really learn about Caffe, it's still much better to go through the examples under `/caffe/examples/`, and to checkout the official documentation, although it's still not very complete yet.
+
+Happy training!
