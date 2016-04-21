@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "A step by step guide to Caffe!"
+title:  "A step by step guide to Caffe"
 date:   2016-04-20 22:21:21 -0700
 categories: Caffe
 ---
@@ -256,11 +256,33 @@ set term x11 1
 plot '../my_model.log.test' using 1:4 with line
 {% endhighlight %}
 
-A sample result looks like this:
+A sample result looks like this:   
 
-![Logging the Log Loss]({{ site.url }}/images/loss_log.png)
+![Logging the Log Loss]({{ site.url }}/images/loss_log.png)   
 
-You can call the `visualize_log.sh` command at any time during training to check the progress.
+You can call the `visualize_log.sh` command at any time during training to check the progress. Even better, with more tweaks, we can make this plot live:   
+
+{% highlight bash %}
+# visualize_log.sh
+refresh_log() {
+  while [true]; do
+    python ~/caffe/tools/extra/parse_log.py ../my_model.log ../
+    sleep 5 
+  done
+}
+refresh_log & 
+sleep 1
+gnuplot gnuplot_commands
+{% endhighlight %}
+
+{% highlight bash %}
+# gnuplot_commands
+set datafile separator ','
+plot '../model3_e-5.log.train' using 1:4  with line title 'training loss',\
+     '../model3_e-5.log.test' using 1:5 with line title 'test loss'
+pause 1
+reread
+{% endhighlight %}
 
 There are a lot of things to talk about babysitting the training process, it's out of the scope of this post though. The class notes from Stanford ([**here**](http://cs231n.github.io/neural-networks-3/)) has had it very well explained, take a look if you are interested.
 
