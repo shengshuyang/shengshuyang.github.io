@@ -258,4 +258,4 @@ plot '../my_model.log.test' using 1:4 with line
 
 A sample result looks like this:
 
-![Logging the Log Loss]({{ site.url }}/images/loss_log.jpg)
+![Logging the Log Loss]({{ site.url }}/images/loss_log.png)
