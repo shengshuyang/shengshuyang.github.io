@@ -202,6 +202,8 @@ caffe train \
 
 - Logging your performance
 
+**Optional**: Try out [NVIDIA DIGITS](https://developer.nvidia.com/digits), a web based GUI for deep learning.
+
 Once the training starts, Caffe will print training loss and testing accuracies in a frequency specified by you, however, it would be very useful to save those screen outputs to a log file so we can better visualize our progress, and that's why we have those funky things in the code block above:
 
 {% highlight bash %}
