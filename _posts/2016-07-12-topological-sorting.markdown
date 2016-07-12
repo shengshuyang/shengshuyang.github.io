@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "Lintcode: Topological Sorting"
-date:   2016-07-12 18:00:00 -0700
+date:   2016-07-12 01:00:00 -0700
 categories: leetcode
 ---
 
