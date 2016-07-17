@@ -1,15 +1,15 @@
 ---
 layout: post
-title:  "Leetcode: Regular Expression Matching"
+title:  "Lintcode: Regular Expression Matching"
 date:   2016-07-16 18:00:00 -0700
 categories: leetcode
 ---
 
 Very interesting problem. It's a regular 2D dynamic programming problem, but understanding the problem is actually harder than solving it.
 
-It's actually easier to think of "*" and a "counter" that takes values from 0 to infinity. For example "ab" matches the pattern "c*a*b*" because "c*a*b*" can be interpreted as "c0a1b1". Similarly "aaaaaa" matches "a*" because "a*" can be interpreted as "a6".
+It's actually easier to think of `*` as a "counter" that takes values from 0 to infinity. For example `ab` matches the pattern `c*a*b*` because `c*a*b*` can be interpreted as `c0a1b1`. Similarly `aaaaaa` matches `a*` because `a*` can be interpreted as `a6`.
 
-Based on this concept, the pattern ".*" can match any string because it can be ".0" which matches empty string, or ".100" which matches 100 arbitrary characters.
+Based on this concept, the pattern `.*` can match any string because it can be `.0` which matches empty string, or `.100` which matches 100 arbitrary characters.
 
 {% highlight python %}
 class Solution:
