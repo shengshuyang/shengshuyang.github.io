@@ -5,6 +5,12 @@ date:   2016-04-20 22:21:21 -0700
 categories: Caffe
 ---
 
+- Updates 05/2018
+
+Although I've always appreciated views on my posts, as of 05/2018, I don't think this post is relevant anymore. Deep learning has evolved with plenty of newer and much easier to use frameworks (Tensorflow, Caffe 2, etc.), so unless there's a particular reason you have to use the original Caffe, browse other options before reading on.
+
+- Intro
+
 [Caffe](http://caffe.berkeleyvision.org/) is a great and very widely used framework for deep learning, offers a vast collection of out-of-the-box layers and an amazing ["model zoo"](https://github.com/BVLC/caffe/wiki/Model-Zoo), however, it's also famous for its lack of documentation.
 
 After playing around with it for a few days, I felt that it would be great to share what I did to get everything up and running, especially some small hacks that I had to hunt around to get. I think it could well serve as a tutorial.
@@ -242,7 +248,7 @@ And with a little bit trick, you can automate the parsing process and combine it
 
 {% highlight bash %}
 # visualize_log.sh
-python ~/caffe/tools/extra/parse_log.py my_model.log .
+python ~/caffe/tools/extra/parse_log.py my_model.log . # notice the dot in the end
 gnuplot -persist gnuplot_commands
 {% endhighlight %}
 
